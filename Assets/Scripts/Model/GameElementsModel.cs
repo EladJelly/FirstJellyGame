@@ -8,5 +8,13 @@
             Yellow,
             Red
         }
+
+        public enum TargetReached
+        {
+            None,
+            DifferentType,
+            SameType,
+            Special
+        }
     }
 }

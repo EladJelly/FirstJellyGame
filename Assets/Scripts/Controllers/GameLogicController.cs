@@ -32,21 +32,43 @@ namespace Assets.Scripts.Controllers
             GameEventsController.TorusExitEvent -= DecreaseScore;
         }
 
-        private void IncreaseScore(bool isSameColor)
+        private void IncreaseScore(GameElementsModel.TargetReached type)
         {
-            int points = isSameColor ? GameConfigurationData.TargetReachedSameColorPoints : GameConfigurationData.TargetReachedPoints;
-            GameSessionData.Score += points;
-            GameEventsController.OnScoreUpdate(points);
+            UpdateScore(type, true);
+            GameSessionData.TorusCollectedCount--;
+        }
+
+        private void DecreaseScore(GameElementsModel.TargetReached type)
+        {
+            UpdateScore(type, false);
             GameSessionData.TorusCollectedCount++;
             CheckGameProgress();
         }
 
-        private void DecreaseScore(bool isSameColor)
+        private void UpdateScore(GameElementsModel.TargetReached type, bool isPositive)
         {
-            int points = isSameColor ? GameConfigurationData.TargetReachedSameColorPoints : GameConfigurationData.TargetReachedPoints;
-            GameSessionData.Score -= points;
-            GameEventsController.OnScoreUpdate(-points);
-            GameSessionData.TorusCollectedCount--;
+            int points = 0;
+            switch (type)
+            {
+                case GameElementsModel.TargetReached.DifferentType:
+                    points = GameConfigurationData.TargetReachedPoints;
+                    break;
+                case GameElementsModel.TargetReached.SameType:
+                    points = GameConfigurationData.TargetReachedSameColorPoints;
+                    break;
+                case GameElementsModel.TargetReached.Special:
+                    points = GameConfigurationData.TargetReachedSpecial;
+                    GameEventsController.OnBonusEventEnded();
+                    break;
+            }
+
+            if (!isPositive)
+            {
+                points *= -1;
+            }
+
+            GameSessionData.Score += points;
+            GameEventsController.OnScoreUpdate(points);
         }
 
         private IEnumerator TimerCountdown()
@@ -55,9 +77,20 @@ namespace Assets.Scripts.Controllers
             {
                 yield return new WaitForSeconds(1f);
                 GameSessionData.TimeLeft--;
+                if (GameSessionData.TimeLeft % GameConfigurationData.SpecialTorusFrequency == 0)
+                {
+                    GameEventsController.OnBonusEventStarted();
+                    StartCoroutine(StartBonusTimerCountdown());
+                }
             }
             Time.timeScale = 0f;
             GameEventsController.OnGameOver();
+        }
+
+        private IEnumerator StartBonusTimerCountdown()
+        {
+            yield return new WaitForSeconds(10f);
+            GameEventsController.OnBonusEventEnded();
         }
 
         private void CheckGameProgress()

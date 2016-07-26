@@ -1,4 +1,5 @@
 ﻿using System;
+using Assets.Scripts.Model;
 using UnityEngine;
 
 namespace Assets.Scripts.Controllers
@@ -14,8 +15,8 @@ namespace Assets.Scripts.Controllers
             }
         }
 
-        public static event Action<bool> TorusEnterEvent;
-        public static void OnTorusEntered(bool isSameColor)
+        public static event Action<GameElementsModel.TargetReached> TorusEnterEvent;
+        public static void OnTorusEntered(GameElementsModel.TargetReached isSameColor)
         {
             if (TorusEnterEvent != null)
             {
@@ -23,8 +24,8 @@ namespace Assets.Scripts.Controllers
             }
         }
 
-        public static event Action<bool> TorusExitEvent;
-        public static void OnTorusExit(bool isSameColor)
+        public static event Action<GameElementsModel.TargetReached> TorusExitEvent;
+        public static void OnTorusExit(GameElementsModel.TargetReached isSameColor)
         {
             if (TorusExitEvent != null)
             {
@@ -50,13 +51,32 @@ namespace Assets.Scripts.Controllers
             }
         }
 
-        public static event Action GameCompetedEvent;
+        public static event Action GameCompletedEvent;
         public static void OnGameCompleted()
         {
-            if (GameCompetedEvent != null)
+            if (GameCompletedEvent != null)
             {
-                GameCompetedEvent();
+                GameCompletedEvent();
             }
         }
+
+        public static event Action BonusEventStarted;
+        public static void OnBonusEventStarted()
+        {
+            if (BonusEventStarted != null)
+            {
+                BonusEventStarted();
+            }
+        }
+
+        public static event Action BonusEventEnded;
+        public static void OnBonusEventEnded()
+        {
+            if (BonusEventEnded != null)
+            {
+                BonusEventEnded();
+            }
+        }
+
     }
 }
