@@ -6,6 +6,7 @@ namespace Assets.Scripts.View
 {
     public class TorusView : MonoBehaviour
     {
+        public GameElementsModel.ElementName Name;
         public GameElementsModel.ElementColor Color;
 
         private Rigidbody _rigidBody;

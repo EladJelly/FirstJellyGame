@@ -9,6 +9,8 @@
         public const int TorusCount = 6;
         public const int SpecialTorusFrequency = 15; //Seconds
         public const int SpecialTorusDuration = 10; //Seconds
+        public const float TorusSpawnRangeMax = 5f;
+        public const float TorusSpawnRangeMin = -5f;
 
         //Game physics
         public const float Gravity = -2f;

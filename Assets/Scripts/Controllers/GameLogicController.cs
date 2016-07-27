@@ -7,6 +7,7 @@ namespace Assets.Scripts.Controllers
 {
     public class GameLogicController : MonoBehaviour
     {
+        private bool _levelCompleted;
         void Awake()
         {
             Physics.gravity = new Vector3(0, GameConfigurationData.Gravity, 0);
@@ -14,10 +15,7 @@ namespace Assets.Scripts.Controllers
 
         void Start()
         {
-            Time.timeScale = 1f;
-            GameSessionData.ResetData();
-            GameSessionData.TimeLeft = GameConfigurationData.GameDurationSeconds;
-            StartCoroutine(TimerCountdown());
+            LoadLevel(1);
         }
 
         void OnEnable()
@@ -35,14 +33,14 @@ namespace Assets.Scripts.Controllers
         private void IncreaseScore(GameElementsModel.TargetReached type)
         {
             UpdateScore(type, true);
-            GameSessionData.TorusCollectedCount--;
+            GameSessionData.TorusCollectedCount++;
+            CheckGameProgress();
         }
 
         private void DecreaseScore(GameElementsModel.TargetReached type)
         {
             UpdateScore(type, false);
-            GameSessionData.TorusCollectedCount++;
-            CheckGameProgress();
+            GameSessionData.TorusCollectedCount--;
         }
 
         private void UpdateScore(GameElementsModel.TargetReached type, bool isPositive)
@@ -77,14 +75,13 @@ namespace Assets.Scripts.Controllers
             {
                 yield return new WaitForSeconds(1f);
                 GameSessionData.TimeLeft--;
-                if (GameSessionData.TimeLeft % GameConfigurationData.SpecialTorusFrequency == 0)
-                {
-                    GameEventsController.OnBonusEventStarted();
-                    StartCoroutine(StartBonusTimerCountdown());
-                }
+                //if (GameSessionData.TimeLeft % GameConfigurationData.SpecialTorusFrequency == 0)
+                //{
+                //    GameEventsController.OnBonusEventStarted();
+                //    StartCoroutine(StartBonusTimerCountdown());
+                //}
             }
-            Time.timeScale = 0f;
-            GameEventsController.OnGameOver();
+            LoadLevel(GameSessionData.CurrentLevel);
         }
 
         private IEnumerator StartBonusTimerCountdown()
@@ -95,16 +92,34 @@ namespace Assets.Scripts.Controllers
 
         private void CheckGameProgress()
         {
-            if (GameSessionData.TorusCollectedCount == GameConfigurationData.TorusCount)
+            int currentTorusCount = LevelsConfigurationData.Levels[GameSessionData.CurrentLevel - 1].GetTorusCount();
+            if (GameSessionData.TorusCollectedCount == currentTorusCount)
             {
-                Time.timeScale = 0f;
-                GameEventsController.OnGameCompleted();
+                if (GameSessionData.CurrentLevel == LevelsConfigurationData.Levels.Count)
+                {
+                    Time.timeScale = 0f;
+                    GameEventsController.OnGameCompleted();
+                }
+                else
+                {
+                    LoadLevel(GameSessionData.CurrentLevel + 1);
+                }
             }
+        }
+
+        private void LoadLevel(int level)
+        {
+            GameSessionData.CurrentLevel = level;
+            GameEventsController.OnUnloadLevel();
+            GameSessionData.ResetData();
+            GameEventsController.OnLoadLevel();
+            Time.timeScale = 1f;
+            StartCoroutine(TimerCountdown());
         }
 
         public void RestartGame()
         {
-            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+            LoadLevel(1);
         }
     }
 }

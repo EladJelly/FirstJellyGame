@@ -16,5 +16,14 @@
             SameType,
             Special
         }
+
+        public enum ElementName
+        {
+            PinkTorus,
+            YellowTorus,
+            RedTorus,
+            PinkTarget,
+            YellowTarget
+        }
     }
 }
