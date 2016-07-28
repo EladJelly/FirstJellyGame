@@ -2,12 +2,12 @@
 using Assets.Scripts.Model;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using Assets.Scripts.View;
 
 namespace Assets.Scripts.Controllers
 {
     public class GameLogicController : MonoBehaviour
     {
-        private bool _levelCompleted;
         void Awake()
         {
             Physics.gravity = new Vector3(0, GameConfigurationData.Gravity, 0);
@@ -32,6 +32,8 @@ namespace Assets.Scripts.Controllers
 
         private void IncreaseScore(GameElementsModel.TargetReached type)
         {
+			if (GameSessionData.CurrentState != GameSessionData.GameState.LevelStarted) return;
+
             UpdateScore(type, true);
             GameSessionData.TorusCollectedCount++;
             CheckGameProgress();
@@ -39,6 +41,8 @@ namespace Assets.Scripts.Controllers
 
         private void DecreaseScore(GameElementsModel.TargetReached type)
         {
+			if (GameSessionData.CurrentState != GameSessionData.GameState.LevelStarted) return;
+
             UpdateScore(type, false);
             GameSessionData.TorusCollectedCount--;
         }
@@ -74,14 +78,15 @@ namespace Assets.Scripts.Controllers
             while (GameSessionData.TimeLeft != 0)
             {
                 yield return new WaitForSeconds(1f);
-                GameSessionData.TimeLeft--;
+				GameSessionData.TimeLeft--;
+				Debug.Log (GameSessionData.TimeLeft);
                 //if (GameSessionData.TimeLeft % GameConfigurationData.SpecialTorusFrequency == 0)
                 //{
                 //    GameEventsController.OnBonusEventStarted();
                 //    StartCoroutine(StartBonusTimerCountdown());
                 //}
             }
-            LoadLevel(GameSessionData.CurrentLevel);
+			LoadLevel (GameSessionData.CurrentLevel);
         }
 
         private IEnumerator StartBonusTimerCountdown()
@@ -92,12 +97,12 @@ namespace Assets.Scripts.Controllers
 
         private void CheckGameProgress()
         {
-            int currentTorusCount = LevelsConfigurationData.Levels[GameSessionData.CurrentLevel - 1].GetTorusCount();
+			int currentTorusCount = LevelsConfigurationData.Levels[GameSessionData.CurrentLevel - 1].GetTorusCount();
             if (GameSessionData.TorusCollectedCount == currentTorusCount)
             {
+				GameSessionData.CurrentState = GameSessionData.GameState.LevelCompleted;
                 if (GameSessionData.CurrentLevel == LevelsConfigurationData.Levels.Count)
                 {
-                    Time.timeScale = 0f;
                     GameEventsController.OnGameCompleted();
                 }
                 else
@@ -109,12 +114,13 @@ namespace Assets.Scripts.Controllers
 
         private void LoadLevel(int level)
         {
+			StopCoroutine(TimerCountdown());
             GameSessionData.CurrentLevel = level;
-            GameEventsController.OnUnloadLevel();
+			GameObjectPoolingManager.Instance.ReleaseAll();
             GameSessionData.ResetData();
             GameEventsController.OnLoadLevel();
-            Time.timeScale = 1f;
             StartCoroutine(TimerCountdown());
+			GameSessionData.CurrentState = GameSessionData.GameState.LevelStarted;
         }
 
         public void RestartGame()

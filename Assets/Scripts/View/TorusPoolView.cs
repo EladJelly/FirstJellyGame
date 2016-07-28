@@ -27,7 +27,6 @@ namespace Assets.Scripts.View
         void OnEnable()
         {
             GameEventsController.LoadLevelEvent += LoadLevelElements;
-            GameEventsController.UnloadLevelEvent += UnloadLevelElements;
             GameEventsController.BonusEventStarted += ReleaseSpecialTorus;
             GameEventsController.BonusEventEnded += RemoveSpecialTorus;
         }
@@ -35,29 +34,19 @@ namespace Assets.Scripts.View
         void OnDisable()
         {
             GameEventsController.LoadLevelEvent -= LoadLevelElements;
-            GameEventsController.UnloadLevelEvent -= UnloadLevelElements;
             GameEventsController.BonusEventStarted -= ReleaseSpecialTorus;
             GameEventsController.BonusEventEnded -= RemoveSpecialTorus;
         }
 
-        private void UnloadLevelElements()
-        {
-            var currentLevelData = LevelsConfigurationData.Levels[GameSessionData.CurrentLevel - 1];
-            foreach (var torusData in currentLevelData.Toruses)
-            {
-                GameObjectPoolingManager.Instance.ReleaseAll(torusData.Key);
-            }
-        }
-
         private void LoadLevelElements()
-        {
+        {			
             var currentLevelData = LevelsConfigurationData.Levels[GameSessionData.CurrentLevel - 1];
             _spawnSpotsList = new List<float>();
             foreach (var torusData in currentLevelData.Toruses)
             {
                 int currentTorusCount = torusData.Value;
                 for (int i = 0; i < currentTorusCount; i++)
-                {
+                {					
                     var element = GameObjectPoolingManager.Instance.GetObject(torusData.Key);
                     element.transform.position = new Vector3(GetAvailableSpawnSpot(), 0, 0);
                     element.SetActive(true);

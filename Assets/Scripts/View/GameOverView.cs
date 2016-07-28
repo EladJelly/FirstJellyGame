@@ -18,13 +18,13 @@ namespace Assets.Scripts.View
         void OnEnable()
         {
             GameEventsController.GameOverEvent += ShowGameOver;
-            GameEventsController.GameCompetedEvent += ShowGameCompleted;
+            GameEventsController.GameCompletedEvent += ShowGameCompleted;
         }
 
         void OnDisable()
         {
             GameEventsController.GameOverEvent -= ShowGameOver;
-            GameEventsController.GameCompetedEvent -= ShowGameCompleted;
+            GameEventsController.GameCompletedEvent -= ShowGameCompleted;
         }
 
         private void ShowGameOver()

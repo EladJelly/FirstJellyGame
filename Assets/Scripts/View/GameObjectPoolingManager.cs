@@ -46,9 +46,12 @@ namespace Assets.Scripts.View
             _objectPools[name.ToString()].ReleasePooledObject(obj);
         }
 
-        public void ReleaseAll(GameElementsModel.ElementName name)
+        public void ReleaseAll()
         {
-            _objectPools[name.ToString()].ResetPool();
+			foreach (var pool in _objectPools.Values)
+			{
+				pool.ResetPool();
+			}
         }
     }
 }

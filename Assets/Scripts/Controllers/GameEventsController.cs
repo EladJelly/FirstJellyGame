@@ -13,16 +13,7 @@ namespace Assets.Scripts.Controllers
             {
                 LoadLevelEvent();
             }
-        }
-
-        public static event Action UnloadLevelEvent;
-        public static void OnUnloadLevel()
-        {
-            if (UnloadLevelEvent != null)
-            {
-                UnloadLevelEvent();
-            }
-        }
+        }		       
 
         public static event Action<Vector3> ClickAreaEvent;
         public static void OnClickAreaTriggered(Vector3 hitPoint)

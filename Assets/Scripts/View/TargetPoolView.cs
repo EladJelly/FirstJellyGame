@@ -21,22 +21,11 @@ public class TargetPoolView : MonoBehaviour
     void OnEnable()
     {
         GameEventsController.LoadLevelEvent += LoadLevelElements;
-        GameEventsController.UnloadLevelEvent += UnloadLevelElements;
     }
 
     void OnDisable()
     {
         GameEventsController.LoadLevelEvent -= LoadLevelElements;
-        GameEventsController.UnloadLevelEvent -= UnloadLevelElements;
-    }
-
-    private void UnloadLevelElements()
-    {
-        var currentLevelData = LevelsConfigurationData.Levels[GameSessionData.CurrentLevel - 1];
-        foreach (var targetData in currentLevelData.Targets)
-        {
-            GameObjectPoolingManager.Instance.ReleaseAll(targetData.Key);
-        }
     }
 
     private void LoadLevelElements()

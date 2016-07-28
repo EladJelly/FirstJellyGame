@@ -21,7 +21,7 @@ namespace Assets.Scripts.View
             var result = GetCollisionResult(otherObject);
             if (result != GameElementsModel.TargetReached.None)
             {
-                GameEventsController.OnTorusExit(result);
+				GameEventsController.OnTorusExit(result);
             }
         }
 
