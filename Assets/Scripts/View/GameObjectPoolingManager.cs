@@ -53,5 +53,25 @@ namespace Assets.Scripts.View
 				pool.ResetPool();
 			}
         }
+
+		public float GetAvailableSpawnPoint()
+		{
+			bool pointFound = false;
+			float pointX = 0f;
+			while (!pointFound)
+			{
+				pointX = Random.Range (GameConfigurationData.TorusSpawnRangeMin, GameConfigurationData.TorusSpawnRangeMax);
+				Ray ray = Camera.main.ScreenPointToRay(Camera.main.WorldToScreenPoint(new Vector3(pointX, 0, 0)));
+				RaycastHit hit;
+				if (Physics.Raycast (ray, out hit, 100))
+				{
+					if (hit.collider.GetComponent<RaycastHitAreaView>())
+					{
+						pointFound = true;
+					}
+				}
+			}
+			return pointX;
+		}
     }
 }

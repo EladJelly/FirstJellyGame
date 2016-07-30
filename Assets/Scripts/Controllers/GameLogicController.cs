@@ -8,33 +8,49 @@ namespace Assets.Scripts.Controllers
 {
     public class GameLogicController : MonoBehaviour
     {
+		[SerializeField] private GameObject _intro;
+		[SerializeField] private GameObject _gameView;
+
+		private IEnumerator _timerCoroutine;
+		private IEnumerator _bonusCountdownCoroutine;
+
         void Awake()
         {
             Physics.gravity = new Vector3(0, GameConfigurationData.Gravity, 0);
+			_timerCoroutine = TimerCountdown();
+			_bonusCountdownCoroutine = StartBonusTimerCountdown();
         }
 
-        void Start()
-        {
-            LoadLevel(1);
-        }
-
+        
         void OnEnable()
         {
+			GameEventsController.StartGameEvent += StartGame;
             GameEventsController.TorusEnterEvent += IncreaseScore;
             GameEventsController.TorusExitEvent += DecreaseScore;
         }
 
         void OnDisable()
         {
+			GameEventsController.StartGameEvent -= StartGame;
             GameEventsController.TorusEnterEvent -= IncreaseScore;
             GameEventsController.TorusExitEvent -= DecreaseScore;
         }
+
+		private void StartGame()
+		{
+			_intro.SetActive(false);
+			_gameView.SetActive(true);
+			LoadLevel(1);
+		}
 
         private void IncreaseScore(GameElementsModel.TargetReached type)
         {
 			if (GameSessionData.CurrentState != GameSessionData.GameState.LevelStarted) return;
 
             UpdateScore(type, true);
+
+			if (type == GameElementsModel.TargetReached.Special) return;
+
             GameSessionData.TorusCollectedCount++;
             CheckGameProgress();
         }
@@ -44,6 +60,9 @@ namespace Assets.Scripts.Controllers
 			if (GameSessionData.CurrentState != GameSessionData.GameState.LevelStarted) return;
 
             UpdateScore(type, false);
+
+			if (type == GameElementsModel.TargetReached.Special) return;
+
             GameSessionData.TorusCollectedCount--;
         }
 
@@ -75,18 +94,20 @@ namespace Assets.Scripts.Controllers
 
         private IEnumerator TimerCountdown()
         {
-            while (GameSessionData.TimeLeft != 0)
+			Debug.Log ("TimerCountdown");
+			while (GameSessionData.TimeLeft > 0)
             {
                 yield return new WaitForSeconds(1f);
 				GameSessionData.TimeLeft--;
-				Debug.Log (GameSessionData.TimeLeft);
-                //if (GameSessionData.TimeLeft % GameConfigurationData.SpecialTorusFrequency == 0)
-                //{
-                //    GameEventsController.OnBonusEventStarted();
-                //    StartCoroutine(StartBonusTimerCountdown());
-                //}
+				if (GameSessionData.TimeLeft > 0 && GameSessionData.CurrentState == GameSessionData.GameState.LevelStarted &&
+					GameSessionData.TimeLeft % GameConfigurationData.SpecialTorusFrequency == 0)
+                {
+					GameEventsController.OnBonusEventStarted();
+					StartCoroutine (_bonusCountdownCoroutine);
+                }
             }
-			LoadLevel (GameSessionData.CurrentLevel);
+			GameSessionData.CurrentState = GameSessionData.GameState.LevelCompleted;
+			GameEventsController.OnGameOver();
         }
 
         private IEnumerator StartBonusTimerCountdown()
@@ -114,12 +135,13 @@ namespace Assets.Scripts.Controllers
 
         private void LoadLevel(int level)
         {
-			StopCoroutine(TimerCountdown());
+			StopCoroutine(_bonusCountdownCoroutine);
+			StopCoroutine(_timerCoroutine);
             GameSessionData.CurrentLevel = level;
 			GameObjectPoolingManager.Instance.ReleaseAll();
             GameSessionData.ResetData();
             GameEventsController.OnLoadLevel();
-            StartCoroutine(TimerCountdown());
+			StartCoroutine(_timerCoroutine);
 			GameSessionData.CurrentState = GameSessionData.GameState.LevelStarted;
         }
 

@@ -87,5 +87,14 @@ namespace Assets.Scripts.Controllers
             }
         }
 
+		public static event Action StartGameEvent;
+		public static void OnStartGame()
+		{
+			if (StartGameEvent != null)
+			{
+				StartGameEvent();
+			}
+		}
+
     }
 }

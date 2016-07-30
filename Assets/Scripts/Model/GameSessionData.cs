@@ -17,6 +17,7 @@
 
 		public enum GameState
 		{
+			Intro,
 			LevelStarted,
 			LevelCompleted
 		}

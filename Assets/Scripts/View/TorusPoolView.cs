@@ -48,7 +48,7 @@ namespace Assets.Scripts.View
                 for (int i = 0; i < currentTorusCount; i++)
                 {					
                     var element = GameObjectPoolingManager.Instance.GetObject(torusData.Key);
-                    element.transform.position = new Vector3(GetAvailableSpawnSpot(), 0, 0);
+					element.transform.position = new Vector3(GameObjectPoolingManager.Instance.GetAvailableSpawnPoint(), 0, 0);
                     element.SetActive(true);
                 }
             }
@@ -82,7 +82,7 @@ namespace Assets.Scripts.View
         private void ReleaseSpecialTorus()
         {
             _specialTorus = GameObjectPoolingManager.Instance.GetObject(_redTorus.Name);
-            _specialTorus.transform.position = new Vector3(0, 0, 0);
+			_specialTorus.transform.position = new Vector3(GameObjectPoolingManager.Instance.GetAvailableSpawnPoint(), 0, 0);
             _specialTorus.SetActive(true);
         }
 

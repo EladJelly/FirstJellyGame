@@ -1,4 +1,5 @@
 ﻿using Assets.Scripts.View;
+using Assets.Scripts.Model;
 using UnityEngine;
 
 namespace Assets.Scripts.Controllers
@@ -7,6 +8,11 @@ namespace Assets.Scripts.Controllers
     {
         void Update()
         {
+			if (Input.anyKey && GameSessionData.CurrentState == GameSessionData.GameState.Intro)
+			{
+				GameEventsController.OnStartGame();
+			}
+
             if (Input.GetMouseButtonDown(0))
             {
                 Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
@@ -20,6 +26,8 @@ namespace Assets.Scripts.Controllers
                     }
                 }
             }
+
+
         }
     }
 }
