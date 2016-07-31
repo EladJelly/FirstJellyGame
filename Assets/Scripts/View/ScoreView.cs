@@ -16,17 +16,24 @@ namespace Assets.Scripts.View
         void OnEnable()
         {
             GameEventsController.ScoreUpdateEvent += UpdateScoreView;
+			GameEventsController.LoadLevelEvent += ResetScore;
         }
 
         void OnDisable()
         {
             GameEventsController.ScoreUpdateEvent -= UpdateScoreView;
+			GameEventsController.LoadLevelEvent -= ResetScore;
         }
 
         private void UpdateScoreView(int points)
         {
             _scoreText.text = GameSessionData.Score + " pts";
         }
+
+		private void ResetScore()
+		{
+			_scoreText.text = GameSessionData.Score + " pts";
+		}
         
     }
 }

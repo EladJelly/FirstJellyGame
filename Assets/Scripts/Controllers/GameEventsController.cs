@@ -96,5 +96,14 @@ namespace Assets.Scripts.Controllers
 			}
 		}
 
+		public static event Action RestartGameEvent;
+		public static void OnRestartGame()
+		{
+			if (RestartGameEvent != null)
+			{
+				RestartGameEvent();
+			}
+		}
+
     }
 }

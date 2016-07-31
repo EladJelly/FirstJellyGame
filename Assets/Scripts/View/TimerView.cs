@@ -15,7 +15,10 @@ namespace Assets.Scripts.View
         // Update is called once per frame
         void Update()
         {
-            _timerText.text = string.Format("-{0:00}:{1:00}", GameSessionData.TimeLeft / 60, GameSessionData.TimeLeft % 60);
+			if (GameSessionData.CurrentState == GameSessionData.GameState.LevelStarted)
+			{
+				_timerText.text = string.Format ("-{0:00}:{1:00}", GameSessionData.TimeLeft / 60, GameSessionData.TimeLeft % 60);
+			}
         }
     }
 }

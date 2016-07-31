@@ -69,5 +69,11 @@ namespace Assets.Scripts.View
                 _bonusTimeLeft -= Time.deltaTime;
             }
         }
+
+		public void OnRestart()
+		{
+			_text.text = String.Empty;
+			GameEventsController.OnRestartGame();
+		}
     }
 }
