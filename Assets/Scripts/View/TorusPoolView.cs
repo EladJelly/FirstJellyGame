@@ -15,8 +15,7 @@ namespace Assets.Scripts.View
         private TorusView _redTorus;
 
         private GameObject _specialTorus;
-        private List<float> _spawnSpotsList;
-
+        
         void Awake()
         {
             GameObjectPoolingManager.Instance.CreateGameObjectPool(_pinkTorus.Name, _pinkTorus.gameObject, 3, gameObject);
@@ -43,7 +42,6 @@ namespace Assets.Scripts.View
         private void LoadLevelElements()
         {			
             var currentLevelData = LevelsConfigurationData.Levels[GameSessionData.CurrentLevel - 1];
-            _spawnSpotsList = new List<float>();
             foreach (var torusData in currentLevelData.Toruses)
             {
                 int currentTorusCount = torusData.Value;
@@ -54,31 +52,6 @@ namespace Assets.Scripts.View
                     element.SetActive(true);
                 }
             }
-        }
-
-        private float GetAvailableSpawnSpot()
-        {
-            bool spotFound = false;
-            float spotValue = 0f;
-            while (!spotFound)
-            {
-                spotValue = Random.Range(GameConfigurationData.TorusSpawnRangeMin, GameConfigurationData.TorusSpawnRangeMax);
-                spotFound = !IsSpotTaken(spotValue);
-            }
-            _spawnSpotsList.Add(spotValue);
-            return spotValue;
-        }
-
-        private bool IsSpotTaken(float spotValue)
-        {
-            foreach (var takenSpot in _spawnSpotsList)
-            {
-                if (takenSpot > spotValue - 1 && takenSpot < spotValue + 1)
-                {
-                    return true;
-                }
-            }
-            return false;
         }
 
         private void ReleaseSpecialTorus()

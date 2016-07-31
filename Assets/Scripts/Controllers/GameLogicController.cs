@@ -48,7 +48,8 @@ namespace Assets.Scripts.Controllers
 		{
 			_intro.SetActive(false);
 			_gameView.SetActive(true);
-			LoadLevel(1);
+            _audioSource.PlayOneShot(_sound.GainedPoints);
+            LoadLevel(1);
 			StartCoroutine(TimerCountdown());
             StartCoroutine(BonusTimer());
         }

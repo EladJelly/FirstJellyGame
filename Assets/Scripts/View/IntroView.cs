@@ -17,11 +17,11 @@ namespace Assets.Scripts.View
 
 		private IEnumerator ShowIntro()
 		{
-			yield return new WaitForSeconds(1f);
+			yield return new WaitForSeconds(0.5f);
 			TitleLine1.SetActive(true);
-			yield return new WaitForSeconds(1f);
+			yield return new WaitForSeconds(0.5f);
 			TitleLine2.SetActive(true);
-			yield return new WaitForSeconds(1f);
+			yield return new WaitForSeconds(0.5f);
 			AnyKey.SetActive(true);
 			GameSessionData.CurrentState = GameSessionData.GameState.Intro;
 		}

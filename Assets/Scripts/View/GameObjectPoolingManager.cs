@@ -61,17 +61,29 @@ namespace Assets.Scripts.View
 			while (!pointFound)
 			{
 				pointX = Random.Range (GameConfigurationData.TorusSpawnRangeMin, GameConfigurationData.TorusSpawnRangeMax);
-				Ray ray = Camera.main.ScreenPointToRay(Camera.main.WorldToScreenPoint(new Vector3(pointX, 0, 0)));
-				RaycastHit hit;
-				if (Physics.Raycast (ray, out hit, 100))
-				{
-					if (hit.collider.GetComponent<RaycastHitAreaView>())
-					{
-						pointFound = true;
-					}
-				}
+			    if (IsAvailableSpot(pointX))
+			    {
+			        pointFound = true;
+			    }
 			}
 			return pointX;
 		}
+
+        private bool IsAvailableSpot(float pointX)
+        {
+            for (float p = pointX - 0.5f; p < pointX + 0.5f; p += 0.01f)
+            {
+                Ray ray = Camera.main.ScreenPointToRay(Camera.main.WorldToScreenPoint(new Vector3(p, 0, 0)));
+                RaycastHit hit;
+                if (Physics.Raycast(ray, out hit, 100))
+                {
+                    if (!hit.collider.GetComponent<RaycastHitAreaView>())
+                    {
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
     }
 }
