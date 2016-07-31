@@ -25,6 +25,7 @@ namespace Assets.Scripts.View
             GameEventsController.GameCompletedEvent += ShowGameCompleted;
             GameEventsController.BonusEventStarted += ShowBonusCountdownTimer;
             GameEventsController.BonusEventEnded += HideBonusCountdownTimer;
+            GameEventsController.LoadLevelEvent += HideBonusCountdownTimer;
         }
 
         void OnDisable()
@@ -33,6 +34,7 @@ namespace Assets.Scripts.View
             GameEventsController.GameCompletedEvent -= ShowGameCompleted;
             GameEventsController.BonusEventStarted -= ShowBonusCountdownTimer;
             GameEventsController.BonusEventEnded -= HideBonusCountdownTimer;
+            GameEventsController.LoadLevelEvent -= HideBonusCountdownTimer;
         }
 
         private void ShowGameOver()

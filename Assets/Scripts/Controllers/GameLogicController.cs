@@ -1,7 +1,6 @@
 ﻿using System.Collections;
 using Assets.Scripts.Model;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using Assets.Scripts.View;
 
 namespace Assets.Scripts.Controllers
@@ -10,15 +9,14 @@ namespace Assets.Scripts.Controllers
     {
 		[SerializeField] private GameObject _intro;
 		[SerializeField] private GameObject _gameView;
+        [SerializeField] private SoundController _sound;
 
-		private IEnumerator _timerCoroutine;
-		private IEnumerator _bonusCountdownCoroutine;
+        private AudioSource _audioSource;
 
         void Awake()
         {
             Physics.gravity = new Vector3(0, GameConfigurationData.Gravity, 0);
-			_timerCoroutine = TimerCountdown();
-			_bonusCountdownCoroutine = StartBonusTimerCountdown();
+            _audioSource = _sound.GetComponent<AudioSource>();
         }
 
         
@@ -28,6 +26,7 @@ namespace Assets.Scripts.Controllers
 			GameEventsController.RestartGameEvent += RestartGame;
             GameEventsController.TorusEnterEvent += IncreaseScore;
             GameEventsController.TorusExitEvent += DecreaseScore;
+            GameEventsController.ClickAreaEvent += PlayClickSound;
         }
 
         void OnDisable()
@@ -36,23 +35,31 @@ namespace Assets.Scripts.Controllers
 			GameEventsController.RestartGameEvent -= RestartGame;
             GameEventsController.TorusEnterEvent -= IncreaseScore;
             GameEventsController.TorusExitEvent -= DecreaseScore;
+            GameEventsController.ClickAreaEvent -= PlayClickSound;
         }
 
-		private void StartGame()
+        private void PlayClickSound(Vector3 point)
+        {
+            _audioSource.PlayOneShot(_sound.Up);
+        }
+
+
+        private void StartGame()
 		{
 			_intro.SetActive(false);
 			_gameView.SetActive(true);
 			LoadLevel(1);
-			StartCoroutine(_timerCoroutine);
-		}
+			StartCoroutine(TimerCountdown());
+            StartCoroutine(BonusTimer());
+        }
 
         private void IncreaseScore(GameElementsModel.TargetReached type)
         {
 			if (GameSessionData.CurrentState != GameSessionData.GameState.LevelStarted) return;
 
             UpdateScore(type, true);
-
-			if (type == GameElementsModel.TargetReached.Special) return;
+            _audioSource.PlayOneShot(_sound.GainedPoints);
+            if (type == GameElementsModel.TargetReached.Special) return;
 
             GameSessionData.TorusCollectedCount++;
             CheckGameProgress();
@@ -61,7 +68,7 @@ namespace Assets.Scripts.Controllers
         private void DecreaseScore(GameElementsModel.TargetReached type)
         {
 			if (GameSessionData.CurrentState != GameSessionData.GameState.LevelStarted) return;
-
+            _audioSource.PlayOneShot(_sound.LostPoints);
             UpdateScore(type, false);
 
 			if (type == GameElementsModel.TargetReached.Special) return;
@@ -104,11 +111,6 @@ namespace Assets.Scripts.Controllers
 				if (GameSessionData.TimeLeft > 0)
 				{					
 					GameSessionData.TimeLeft--;
-					if (GameSessionData.TimeLeft > 0 && GameSessionData.TimeLeft % GameConfigurationData.SpecialTorusFrequency == 0)
-					{
-						GameEventsController.OnBonusEventStarted();
-						StartCoroutine (_bonusCountdownCoroutine);
-					}
 				}
 				else
 				{
@@ -118,10 +120,17 @@ namespace Assets.Scripts.Controllers
             }
         }
 
-        private IEnumerator StartBonusTimerCountdown()
+        private IEnumerator BonusTimer()
         {
-            yield return new WaitForSeconds(10f);
-            GameEventsController.OnBonusEventEnded();
+            while (true)
+            {
+                yield return new WaitForSeconds(GameConfigurationData.SpecialTorusFrequency);
+                if (GameSessionData.CurrentState != GameSessionData.GameState.LevelStarted) continue;
+                GameEventsController.OnBonusEventStarted();
+                yield return new WaitForSeconds(GameConfigurationData.SpecialTorusDuration);
+                if (GameSessionData.CurrentState != GameSessionData.GameState.LevelStarted) continue;
+                GameEventsController.OnBonusEventEnded();
+            }
         }
 
         private void CheckGameProgress()
@@ -143,7 +152,6 @@ namespace Assets.Scripts.Controllers
 
         private void LoadLevel(int level)
         {
-			StopCoroutine(_bonusCountdownCoroutine);
 			GameSessionData.CurrentLevel = level;
 			GameObjectPoolingManager.Instance.ReleaseAll();
             GameSessionData.ResetData();

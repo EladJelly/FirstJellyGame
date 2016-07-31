@@ -29,6 +29,7 @@ namespace Assets.Scripts.View
             GameEventsController.LoadLevelEvent += LoadLevelElements;
             GameEventsController.BonusEventStarted += ReleaseSpecialTorus;
             GameEventsController.BonusEventEnded += RemoveSpecialTorus;
+            GameEventsController.LoadLevelEvent += RemoveSpecialTorus;
         }
 
         void OnDisable()
@@ -36,6 +37,7 @@ namespace Assets.Scripts.View
             GameEventsController.LoadLevelEvent -= LoadLevelElements;
             GameEventsController.BonusEventStarted -= ReleaseSpecialTorus;
             GameEventsController.BonusEventEnded -= RemoveSpecialTorus;
+            GameEventsController.LoadLevelEvent -= RemoveSpecialTorus;
         }
 
         private void LoadLevelElements()
@@ -88,6 +90,8 @@ namespace Assets.Scripts.View
 
         private void RemoveSpecialTorus()
         {
+            if (_specialTorus == null || !_specialTorus.activeSelf) return;
+
             GameObjectPoolingManager.Instance.ReleaseObject(_redTorus.Name, _specialTorus);
         }
     }

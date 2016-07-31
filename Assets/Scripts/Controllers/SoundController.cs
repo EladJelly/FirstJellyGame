@@ -1,7 +1,12 @@
 ﻿using UnityEngine;
-using System.Collections;
 
-public class SoundController : MonoBehaviour 
+namespace Assets.Scripts.Controllers
 {
-	public AudioSource Music;
+    public class SoundController : MonoBehaviour 
+    {
+        public AudioClip Music;
+        public AudioClip Up;
+        public AudioClip GainedPoints;
+        public AudioClip LostPoints;
+    }
 }
